@@ -22,7 +22,7 @@ int main() {
     list_directory_contents(dirSO->data.directory);
 
     // Simulação de persistência
-    FILE* img = fopen("fs.img", "w");
+    FILE* img = fopen("prints/fs.img", "w");
     if (img) {
         fprintf(img, "ROOT\n");
         fprintf(img, "├── SO\n");
