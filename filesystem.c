@@ -53,7 +53,6 @@ void change_directory(Directory** current, const char* path) {
 }
 
 void list_directory_contents(Directory* dir) {
-  printf("Conteúdo do diretório:\n");
   btree_traverse(dir->tree);
 }
 
@@ -61,6 +60,7 @@ TreeNode* btree_search(BTree* tree, const char* name) {
   printf("Buscando: %s (simulado)\n", name);
   return NULL;
 }
+
 
 //-----------------------------{ Insert Region }-----------------------------
 // Cria um novo BTreeNode 
@@ -190,13 +190,37 @@ void btree_insert(BTree* tree, TreeNode* node) {
     }
 }
 
-
 //---------------------------------------------------------------------------
 
+
 void btree_delete(BTree* tree, const char* name) {
-    printf("Removendo: %s (simulado)\n", name);
+  printf("Removendo: %s (simulado)\n", name);
 }
 
 void btree_traverse(BTree* tree) {
-    printf("[Exemplo] arquivo.txt\n");
+  BTreeNode* node = tree->root;
+  
+  if (node == NULL) return;
+
+  int i;
+  for(i = 0; i < node->num_keys; i++){
+
+    //vai para o filho da esquerda
+    if(!node->leaf){
+      btree_traverse(node->children[i]);
+    }
+
+    //Imprime as chaves atuais
+    TreeNode* t = node->keys[i];
+    if(t->type == FILE_TYPE){
+      printf("[FILE] %S\n", t->name);
+    }
+    else if(t->type == DIRECTORY_TYPE){
+      printf("[DIR] %s\n",t->name);
+    }
+  }
+
+  if(!node->leaf){
+    btree_traverse(node->children[i]);
+  }
 }

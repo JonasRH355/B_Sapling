@@ -78,8 +78,11 @@ int checkFunction(char *command, Directory* root){
     tokenCount = linha+1;
 
     //Verifica se a o primeiro token = mkdir
-    if (strcmp(token[0], "mkdir")== 0)
+    if (strcmp(token[0], "mkdir")== 0 && strcmp(token[1], "")== 0)
     {
+        printf("You not entered a director name\n");
+    }
+    else if(strcmp(token[0], "mkdir")== 0){
         //Cria todos os diretorios que o token for diferente de nulo
         for(int i = 0; i < tokenCount; i++){
             if(strcmp(token[i], "mkdir")!= 0){
@@ -106,10 +109,17 @@ int checkFunction(char *command, Directory* root){
     }
     else if (strcmp(token[0], "ls")== 0)
     {
-        printf("List of paths\n");
+        list_directory_contents(root);
     }
     else if (strcmp(token[0], "cd")== 0)
     {
+        // TreeNode* next = btree_search(currentDir->tree, token[1]);
+        // if (next && next->type == DIRECTORY_TYPE) {
+        //     currentNode = next;
+        //     currentDir = next->data.directory;
+        // } else {
+        //     printf("Diretório não encontrado.\n");
+        // }
         printf("Go to new path\n");
     }
     else{
@@ -123,12 +133,15 @@ int checkFunction(char *command, Directory* root){
 
 int PROMPT(){
     char text[100]= "";
-    char dir[100] = "";
-    Directory* root = get_root_directory();
+    // Directory* root = get_root_directory();
+    // char dir[100] = "";
+
+    TreeNode* currentNode = create_directory("ROOT");
+    Directory* currentDir = currentNode -> data.directory;
 
     while (1)
     {
-        printf("->%s $ ",dir);
+        printf("-> %s $ ",currentNode->name);
         fgets(text, 100, stdin);
         //scanf("%s",text); //"%d",
         
@@ -142,7 +155,7 @@ int PROMPT(){
             break;
         }
         else {
-            checkFunction(text,root);
+            checkFunction(text,currentDir);
         }
     }
     
