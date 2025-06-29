@@ -1,5 +1,5 @@
 #include "filesystem.h"
-#include <stdio.h>
+//#include <stdio.h>
 /*
 int main() {
     // Criação do sistema de arquivos
@@ -39,14 +39,14 @@ int main() {
 }
 */ 
 
-char toLower(char c){ // Caso o valor seja uma letra minuscula, será retornadoa em Uppercase
+char toLower(char c){ // Caso o valor seja uma letra minuscula, será retornadoa em lowerCase
    if (c >= 'A' && c <= 'Z') {
       return c + 32;
    }
    return c;
 }
 
-// Verifica se as seis primeiras letras são em Uppercase
+// Verifica se as seis primeiras letras são em Lower Case
 void checkIfIsAllLower(char *command){ 
    for(int i=0; i<6 && command[i] != '\0'; i++){
       if(command[i] < 'a' || command[i] > 'z'){
@@ -55,8 +55,9 @@ void checkIfIsAllLower(char *command){
    }
 }
 
-int checkFunction(char *command){
-    char token[5][100];
+int checkFunction(char *command, Directory* root){
+    char token[5][100] = {0};
+    int tokenCount = 0;
     int coluna = 0;
     int linha = 0;
 
@@ -74,10 +75,20 @@ int checkFunction(char *command){
         
     }
     token[linha][coluna] = '\0';
+    tokenCount = linha+1;
 
+    //Verifica se a o primeiro token = mkdir
     if (strcmp(token[0], "mkdir")== 0)
     {
-        printf("Created DIR\n");
+        //Cria todos os diretorios que o token for diferente de nulo
+        for(int i = 0; i < tokenCount; i++){
+            if(strcmp(token[i], "mkdir")!= 0){
+
+                btree_insert(root->tree, create_directory(token[i]));
+                
+                printf("Created %s\n", token[i]);
+            }
+        }
     }
     else if (strcmp(token[0], "rmdir")== 0)
     {
@@ -85,6 +96,8 @@ int checkFunction(char *command){
     }
     else if (strcmp(token[0], "touch")== 0)
     {
+        //btree_insert(root->data.directory->tree, create_txt_file("arquivo1.txt", "Arquivo de teste de SO."));
+
         printf("Created file\n");
     }
     else if (strcmp(token[0], "rm")== 0)
@@ -103,6 +116,7 @@ int checkFunction(char *command){
         printf("Command not found\n");
     }
 
+    return 0;
 }
 
 
@@ -110,6 +124,7 @@ int checkFunction(char *command){
 int PROMPT(){
     char text[100]= "";
     char dir[100] = "";
+    Directory* root = get_root_directory();
 
     while (1)
     {
@@ -127,7 +142,7 @@ int PROMPT(){
             break;
         }
         else {
-            checkFunction(text);
+            checkFunction(text,root);
         }
     }
     
