@@ -309,6 +309,51 @@ void btree_insert(BTree* tree, TreeNode* node) {
 }
 
 //---------------------------------------------------------------------------
+void btree_print_tree(BTreeNode* node, FILE* f, int depth, const char* prefix) {
+  if (node == NULL) return;
+
+  for (int i = 0; i < node->num_keys; i++) {
+    TreeNode* t = node->keys[i];
+
+    for (int d = 0; d < depth; d++) fprintf(f, "%s", prefix);
+
+    if (t->type == FILE_TYPE) {
+      fprintf(f, "└── %s: %s\n", t->name, t->data.file->content);
+    } else if (t->type == DIRECTORY_TYPE) {
+      fprintf(f, "├── %s\n", t->name);
+      btree_print_tree(t->data.directory->tree->root, f, depth + 1, "│   ");
+    }
+  }
+
+    if (!node->leaf && node->num_keys > 0) {
+      btree_print_tree(node->children[node->num_keys], f, depth + 1, "│   ");
+  }
+}
+
+
+
+void printTree(TreeNode * dirNode){
+  if (!dirNode || dirNode->type != DIRECTORY_TYPE) {
+    printf("Invalid directory.\n");
+    return;
+  }
+
+  char filename[200];
+  snprintf(filename, sizeof(filename), "prints/print_%s.img", dirNode->name);
+
+  FILE* img = fopen(filename, "w");
+  if (!img) {
+      perror("Error creating print file");
+      return;
+  }
+
+  fprintf(img, "%s\n", dirNode->name);
+  btree_print_tree(dirNode->data.directory->tree->root, img, 0, "");
+
+  fclose(img);
+  printf("Directory printed to %s\n", filename);
+}
+
 
 void btree_traverse(BTreeNode* tree) {
   BTreeNode* node = tree;

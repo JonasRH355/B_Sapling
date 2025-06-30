@@ -1,43 +1,4 @@
 #include "filesystem.h"
-//#include <stdio.h>
-/*
-int main() {
-    // Criação do sistema de arquivos
-    Directory* root = get_root_directory();
-
-    // Diretórios de segundo nível
-    TreeNode* dirSO = create_directory("SO");
-    TreeNode* dirTEST = create_directory("TEST");
-    btree_insert(root->tree, dirSO);
-    btree_insert(root->tree, dirTEST);
-
-    // Arquivo em SO
-    TreeNode* file1 = create_txt_file("arquivo1.txt", "Arquivo de teste de SO.");
-    btree_insert(dirSO->data.directory->tree, file1);
-
-    // Listagem
-    printf("--- Conteúdo do diretório ROOT ---\n");
-    list_directory_contents(root);
-
-    printf("\n--- Conteúdo do diretório SO ---\n");
-    list_directory_contents(dirSO->data.directory);
-
-    // Simulação de persistência
-    FILE* img = fopen("prints/fs.img", "w");
-    if (img) {
-        fprintf(img, "ROOT\n");
-        fprintf(img, "├── SO\n");
-        fprintf(img, "│   └── arquivo1.txt: Arquivo de teste de SO.\n");
-        fprintf(img, "└── TEST\n");
-        fclose(img);
-        printf("\nSistema de arquivos salvo em fs.img\n");
-    } else {
-        perror("Erro ao criar fs.img");
-    }
-
-    return 0;
-}
-*/ 
 
 char toLower(char c){ // Caso o valor seja uma letra minuscula, será retornadoa em lowerCase
    if (c >= 'A' && c <= 'Z') {
@@ -191,6 +152,16 @@ int execFunction(char *command, Directory** currentDir, TreeNode** currentNode){
             }
         }
     }
+
+    else if (strcmp(token[0], "print")== 0 ){
+        printf("Chegou aqui\n");
+        printTree(*currentNode);
+    }
+    
+    else if(strncmp(token[0], "quit",4)== 0){ //defini por pegar apenas as 4 primeiras letras ao inves de ter que verificar "quit\n"
+        printf("Closing PROMPT\n");
+        return 1;
+    }
     
     else{
         printf("Command not found\n");
@@ -221,12 +192,12 @@ int PROMPT(){
         if(strcmp(text, "")== 0 || strcmp(text, "\n")== 0){
 
         }
-        else if(strncmp(text, "quit",4)== 0){ //defini por pegar apenas as 4 primeiras letras ao inves de ter que verificar "quit\n"
-            printf("Closing PROMPT\n");
-            break;
-        }
         else {
-            execFunction(text,&currentDir,&currentNode);
+            if( execFunction(text,&currentDir,&currentNode) == 1)
+            {
+                break;
+            }
+            
         }
     }
     

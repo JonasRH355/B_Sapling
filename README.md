@@ -1,4 +1,4 @@
-# SAPLES-B-TREE
+# B Sapling
 By: Jonatas Regis Hellmann
 > Use "gcc -o main main_fs.c filesystem.c -Wall -Wextra && ./main" to build and run the code
 
@@ -7,5 +7,3 @@ By: Jonatas Regis Hellmann
         - Insert and delete file txt
         - Creation and remotion DIRs
         - Hierarchical storage of DIRs and files
-
-obs: I need to change the repositorie's name to B Sapling

@@ -60,4 +60,5 @@ Directory* get_root_directory();
 void change_directory(TreeNode **currentNode, Directory **currentDir, TreeNode *next);
 void list_directory_contents(Directory* dir);
 
+void printTree(TreeNode * dirNode);
 #endif
