@@ -22,13 +22,14 @@ TreeNode* create_txt_file(const char* name, const char* content) {
 }
 
 //Funcao para criar um node do tipo DIR
-TreeNode* create_directory(const char* name) {
+TreeNode* create_directory(const char* name, TreeNode* parent) {
     Directory* dir = malloc(sizeof(Directory));
     dir->tree = btree_create();
 
     TreeNode* node = malloc(sizeof(TreeNode));
     node->name = strdup(name);
     node->type = DIRECTORY_TYPE;
+    node->parent = parent;
     node->data.directory = dir;
     return node;
 }
@@ -39,7 +40,34 @@ void delete_txt_file(BTree* tree, const char* name) {
 }
 
 void delete_directory(BTree* tree, const char* name) {
-    printf("Diretório '%s' deletado (simulado)\n", name);
+  TreeNode* target = btree_search(tree,name);
+
+  if(!target){ // verficar se existe
+    printf("Directory %s not found", name);
+    return;
+  }
+
+  if(target->type != DIRECTORY_TYPE){
+    printf("%s's not a Directory",name);
+    return;
+  }
+
+  Directory* dir = target->data.directory;
+
+  //Verifica se esta vazio
+  if(dir->tree->root != NULL && dir->tree->root->num_keys > 0){
+    printf("%s is not empty", name);
+    return;
+  }
+
+  btree_delete(tree,name);
+  printf("Deleted %s directory", name);
+
+  //Limpar a memoria
+  free(target->name);
+  free(dir->tree);
+  free(dir);
+  free(target);
 }
 
 Directory* get_root_directory() {
@@ -53,13 +81,41 @@ void change_directory(Directory** current, const char* path) {
 }
 
 void list_directory_contents(Directory* dir) {
-  btree_traverse(dir->tree);
+  btree_traverse(dir->tree->root);
+}
+
+//-----------------------------{ Search Functions }-----------------------------
+
+TreeNode* btree_search_node(BTreeNode* node,const char* name){
+  if(node == NULL) {return NULL;} //Arvore vazia
+
+  int i = 0;
+  //Verifica se esta no lugar certo
+  while (i < node->num_keys && strcmp(name, node->keys[i]->name) > 0)
+  {
+    i++;
+  }
+  
+  // Verifica se realmente encontrou
+  if (i < node->num_keys && strcmp(name, node->keys[i]->name) == 0)
+  {
+    return node->keys[i];
+  }
+  
+  //verifica se nao e' uma folha(arquivo .txt)
+  if(node->leaf){
+    return NULL;
+  }
+
+  return btree_search_node(node->children[i],name);
+
 }
 
 TreeNode* btree_search(BTree* tree, const char* name) {
-  printf("Buscando: %s (simulado)\n", name);
-  return NULL;
+  return btree_search_node(tree->root, name);
 }
+
+//------------------------------------------------------------------------------
 
 
 //-----------------------------{ Insert Region }-----------------------------
@@ -197,8 +253,8 @@ void btree_delete(BTree* tree, const char* name) {
   printf("Removendo: %s (simulado)\n", name);
 }
 
-void btree_traverse(BTree* tree) {
-  BTreeNode* node = tree->root;
+void btree_traverse(BTreeNode* tree) {
+  BTreeNode* node = tree;
   
   if (node == NULL) return;
 
@@ -213,7 +269,7 @@ void btree_traverse(BTree* tree) {
     //Imprime as chaves atuais
     TreeNode* t = node->keys[i];
     if(t->type == FILE_TYPE){
-      printf("[FILE] %S\n", t->name);
+      printf("[FILE] %s\n", t->name);
     }
     else if(t->type == DIRECTORY_TYPE){
       printf("[DIR] %s\n",t->name);
@@ -221,6 +277,7 @@ void btree_traverse(BTree* tree) {
   }
 
   if(!node->leaf){
-    btree_traverse(node->children[i]);
+    //btree_traverse(node->children[i]);
+    btree_traverse(node);
   }
 }

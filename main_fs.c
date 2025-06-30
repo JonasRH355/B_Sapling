@@ -55,7 +55,7 @@ void checkIfIsAllLower(char *command){
    }
 }
 
-int checkFunction(char *command, Directory* root){
+int checkFunction(char *command, Directory** currentDir, TreeNode** currentNode){
     char token[5][100] = {0};
     int tokenCount = 0;
     int coluna = 0;
@@ -82,46 +82,70 @@ int checkFunction(char *command, Directory* root){
     {
         printf("You not entered a director name\n");
     }
+    
     else if(strcmp(token[0], "mkdir")== 0){
         //Cria todos os diretorios que o token for diferente de nulo
         for(int i = 0; i < tokenCount; i++){
             if(strcmp(token[i], "mkdir")!= 0){
 
-                btree_insert(root->tree, create_directory(token[i]));
+                btree_insert((*currentDir)->tree, create_directory(token[i],*currentNode));
                 
                 printf("Created %s\n", token[i]);
             }
         }
     }
+    
     else if (strcmp(token[0], "rmdir")== 0)
     {
         printf("Remove DIR\n");
     }
+    
     else if (strcmp(token[0], "touch")== 0)
     {
         //btree_insert(root->data.directory->tree, create_txt_file("arquivo1.txt", "Arquivo de teste de SO."));
 
         printf("Created file\n");
     }
+    
     else if (strcmp(token[0], "rm")== 0)
     {
         printf("Removed file\n");
     }
+    
     else if (strcmp(token[0], "ls")== 0)
     {
-        list_directory_contents(root);
+        list_directory_contents(*currentDir);
     }
+    
+    else if (strcmp(token[0], "cd")== 0 && strcmp(token[1], "")== 0){
+        printf("You not entered any directory\n");
+    }
+
     else if (strcmp(token[0], "cd")== 0)
     {
-        // TreeNode* next = btree_search(currentDir->tree, token[1]);
-        // if (next && next->type == DIRECTORY_TYPE) {
-        //     currentNode = next;
-        //     currentDir = next->data.directory;
-        // } else {
-        //     printf("Diretório não encontrado.\n");
-        // }
-        printf("Go to new path\n");
+        if(strcmp(token[1], "..")== 0){
+            if((*currentNode)->parent == NULL){
+                printf("U cann`t go back, because u are on the ROOT\n");
+            }
+            else{
+                *currentNode = (*currentNode)->parent;
+                *currentDir = (*currentNode)->data.directory;
+            }
+        }
+        else{
+            TreeNode* next = btree_search((*currentDir)->tree, token[1]);
+            if (next && next->type == DIRECTORY_TYPE) {
+
+                *currentNode = next;
+                *currentDir = next->data.directory;
+            } 
+            
+            else {
+                printf("Directory not found.\n");
+            }
+        }
     }
+    
     else{
         printf("Command not found\n");
     }
@@ -136,11 +160,12 @@ int PROMPT(){
     // Directory* root = get_root_directory();
     // char dir[100] = "";
 
-    TreeNode* currentNode = create_directory("ROOT");
+    TreeNode* currentNode = create_directory("ROOT",NULL);
     Directory* currentDir = currentNode -> data.directory;
 
     while (1)
     {
+        
         printf("-> %s $ ",currentNode->name);
         fgets(text, 100, stdin);
         //scanf("%s",text); //"%d",
@@ -155,7 +180,7 @@ int PROMPT(){
             break;
         }
         else {
-            checkFunction(text,currentDir);
+            checkFunction(text,&currentDir,&currentNode);
         }
     }
     

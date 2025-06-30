@@ -20,6 +20,7 @@ struct Directory;
 typedef struct TreeNode {
     char* name;
     NodeType type;
+    struct TreeNode* parent;
     union {
         File* file;
         struct Directory* directory;
@@ -46,11 +47,11 @@ BTree* btree_create();
 void btree_insert(BTree* tree, TreeNode* node);
 void btree_delete(BTree* tree, const char* name);
 TreeNode* btree_search(BTree* tree, const char* name);
-void btree_traverse(BTree* tree);
+void btree_traverse(BTreeNode* tree);
 
 // File/Directory creation
 TreeNode* create_txt_file(const char* name, const char* content);
-TreeNode* create_directory(const char* name);
+TreeNode* create_directory(const char* name, TreeNode* parent);
 void delete_txt_file(BTree* tree, const char* name);
 void delete_directory(BTree* tree, const char* name);
 
