@@ -34,21 +34,80 @@ TreeNode* create_directory(const char* name, TreeNode* parent) {
     return node;
 }
 
+//-----------------------------{ Delete Functions }-----------------------------
 
 void delete_txt_file(BTree* tree, const char* name) {
-    printf("Arquivo '%s' deletado (simulado)\n", name);
+
+  TreeNode* target = btree_search(tree, name);
+
+  if (!target) {
+    printf("File '%s' not found.\n", name);
+    return;
+  }
+
+  if (target->type != FILE_TYPE) {
+    printf("'%s' is not a file.\n", name);
+    return;
+  }
+
+
+  btree_delete(tree, name);
+
+  free(target->name);
+  free(target->data.file->content);
+  free(target->data.file);
+  free(target);
+
+  printf("File '%s' deleted successfully.\n", name);
+}
+
+void btree_delete_node(BTreeNode* node, const char* name) {
+  int i = 0;
+  
+  while (i < node->num_keys && strcmp(name, node->keys[i]->name) != 0) {
+    i++;
+  }
+
+  if (i == node->num_keys) {
+    // Não encontrou aqui
+    if (node->leaf) {
+      printf("'%s' not found in this node.\n", name);
+    } else {
+      btree_delete_node(node->children[i], name);
+    }
+  } 
+  
+  else {  
+    if (node->leaf) {
+      // Remove direto do vetor keys[]
+      for (int j = i; j < node->num_keys - 1; j++) {
+        node->keys[j] = node->keys[j + 1];
+      }
+      node->num_keys--;
+    } 
+    
+    else {
+      printf("Deletion from non-leaf not implemented.\n");
+    }
+  }
+}
+
+void btree_delete(BTree* tree, const char* name) {
+  if(tree->root != NULL){
+    btree_delete_node(tree->root,name);
+  }
 }
 
 void delete_directory(BTree* tree, const char* name) {
   TreeNode* target = btree_search(tree,name);
 
   if(!target){ // verficar se existe
-    printf("Directory %s not found", name);
+    printf("Directory %s not found\n", name);
     return;
   }
 
   if(target->type != DIRECTORY_TYPE){
-    printf("%s's not a Directory",name);
+    printf("%s's not a Directory\n",name);
     return;
   }
 
@@ -56,12 +115,12 @@ void delete_directory(BTree* tree, const char* name) {
 
   //Verifica se esta vazio
   if(dir->tree->root != NULL && dir->tree->root->num_keys > 0){
-    printf("%s is not empty", name);
+    printf("%s is not empty\n", name);
     return;
   }
 
   btree_delete(tree,name);
-  printf("Deleted %s directory", name);
+  printf("Deleted %s directory\n", name);
 
   //Limpar a memoria
   free(target->name);
@@ -70,14 +129,17 @@ void delete_directory(BTree* tree, const char* name) {
   free(target);
 }
 
+//------------------------------------------------------------------------------
+
 Directory* get_root_directory() {
   Directory* root = malloc(sizeof(Directory));
   root->tree = btree_create();
   return root;
 }
 
-void change_directory(Directory** current, const char* path) {
-  printf("Mudando para o diretório: %s (simulado)\n", path);
+void change_directory(TreeNode **currentNode, Directory **currentDir, TreeNode *next) {
+  *currentNode = next;
+  *currentDir = next->data.directory;
 }
 
 void list_directory_contents(Directory* dir) {
@@ -247,11 +309,6 @@ void btree_insert(BTree* tree, TreeNode* node) {
 }
 
 //---------------------------------------------------------------------------
-
-
-void btree_delete(BTree* tree, const char* name) {
-  printf("Removendo: %s (simulado)\n", name);
-}
 
 void btree_traverse(BTreeNode* tree) {
   BTreeNode* node = tree;
