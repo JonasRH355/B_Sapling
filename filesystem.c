@@ -303,7 +303,7 @@ void btree_insert(BTree* tree, TreeNode* node) {
       btree_insert_nonfull(s, node); //Como foi dividio, ele so' precisa inserir o novo no no lugar certo
       tree->root = s;
     } 
-    else {
+    else { 
       btree_insert_nonfull(r, node); //insere o no em um campo vazio
     }
 }

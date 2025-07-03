@@ -76,7 +76,6 @@ int execFunction(char *command, Directory** currentDir, TreeNode** currentNode){
             printf("You not entered a name to the file\n");
             return 0;
         }
-
         char content[1048576 + 1] = ""; //Touch tem no maximo 1MB
         
         //Recriar o conteudo do arquivo
